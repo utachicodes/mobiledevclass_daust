@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -91,73 +90,71 @@ function HomeStack() {
 
 export default function Exercise2() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }: any) => ({
-          headerShown: false,
-          tabBarIcon: ({ focused, color, size }: any) => {
-            let iconName: string = 'home';
+    <Tab.Navigator
+      screenOptions={({ route }: any) => ({
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size }: any) => {
+          let iconName: string = 'home';
 
-            if (route.name === 'Home') {
-              iconName = focused ? 'home' : 'home-outline';
-            } else if (route.name === 'Settings') {
-              iconName = focused ? 'cog' : 'cog-outline';
-            } else if (route.name === 'Profile') {
-              iconName = focused ? 'account' : 'account-outline';
-            }
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'cog' : 'cog-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'account' : 'account-outline';
+          }
 
-            return (
-              <MaterialCommunityIcons name={iconName as any} size={size} color={color} />
-            );
+          return (
+            <MaterialCommunityIcons name={iconName as any} size={size} color={color} />
+          );
+        },
+        tabBarActiveTintColor: '#1a73e8',
+        tabBarInactiveTintColor: '#999',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopColor: '#eee',
+          borderTopWidth: 1,
+        },
+      })}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+        options={{
+          tabBarLabel: 'Home',
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#1a73e8',
           },
-          tabBarActiveTintColor: '#1a73e8',
-          tabBarInactiveTintColor: '#999',
-          tabBarStyle: {
-            backgroundColor: '#fff',
-            borderTopColor: '#eee',
-            borderTopWidth: 1,
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
           },
-        })}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeStack}
-          options={{
-            tabBarLabel: 'Home',
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{
-            tabBarLabel: 'Settings',
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: '#1a73e8',
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            tabBarLabel: 'Profile',
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: '#1a73e8',
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#1a73e8',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
