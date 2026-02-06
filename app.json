@@ -22,6 +22,7 @@
       },
       "edgeToEdgeEnabled": true
     },
+    "scheme": "mobiledevclass",
     "web": {
       "favicon": "./assets/favicon.png"
     }
