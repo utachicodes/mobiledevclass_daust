@@ -6,7 +6,7 @@ import UserProfile from './src/exercises/lab1/UserProfile';
 import Lab2Showcase from './src/exercises/lab2/Lab2Showcase';
 import Lab3Screen from './src/exercises/lab3';
 import Lab4Showcase from './src/exercises/lab4';
-import LabTest1 from './src/labtest1';
+import LabTest1 from './src/exercises/labtest1';
 
 export default function App() {
   const [currentLab, setCurrentLab] = useState<'lab1' | 'lab2' | 'lab3' | 'lab4' | 'labtest1'>('labtest1');
