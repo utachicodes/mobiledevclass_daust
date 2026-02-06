@@ -1,11 +1,11 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ThemeProvider, useTheme } from '../lab3/ThemeContext';
+import { ThemeProvider, useTheme } from '../exercises/lab3/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import WeatherCard from '../lab3/WeatherCard';
-import ThemeSwitcher from '../lab3/ThemeSwitcher';
+import WeatherCard from '../exercises/lab3/WeatherCard';
+import ThemeSwitcher from '../exercises/lab3/ThemeSwitcher';
 import ResponsiveGalleryClickable from './components/ResponsiveGalleryClickable';
 
 const Drawer = createDrawerNavigator();
