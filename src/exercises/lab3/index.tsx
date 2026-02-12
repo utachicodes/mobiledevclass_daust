@@ -4,9 +4,13 @@ import WeatherCard from './WeatherCard';
 import ResponsiveGallery from './ResponsiveGallery';
 import ThemeSwitcher from './ThemeSwitcher';
 import { ThemeProvider, useTheme } from './ThemeContext';
+import { useRouter } from 'expo-router';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
 
 export const Lab3Content = () => {
     const { colors } = useTheme();
+    const router = useRouter();
 
     return (
         <ScrollView
@@ -21,6 +25,12 @@ export const Lab3Content = () => {
             <View style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>Exercise 1: Weather Card</Text>
                 <WeatherCard />
+                <TouchableOpacity
+                    style={[styles.detailBtn, { borderColor: colors.primary }]}
+                    onPress={() => (router as any).push('/labs/lab3/Chicago')}
+                >
+                    <Text style={{ color: colors.primary }}>View Chicago Details (Dynamic Route)</Text>
+                </TouchableOpacity>
             </View>
 
             <View style={styles.section}>
@@ -68,4 +78,11 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         fontStyle: 'italic',
     },
+    detailBtn: {
+        marginTop: 10,
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 8,
+        alignItems: 'center',
+    }
 });
