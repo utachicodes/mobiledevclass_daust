@@ -8,7 +8,8 @@ import {
     LogOut,
     ChevronLeft,
     Menu,
-    LifeBuoy
+    LifeBuoy,
+    Layers
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -23,6 +24,7 @@ export default function AdminLayout() {
     const menuItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
         { icon: Package, label: "Products", path: "/admin/products" },
+        { icon: Layers, label: "Collections", path: "/admin/collections" },
         { icon: ShoppingBag, label: "Orders", path: "/admin/orders" },
     ];
 
@@ -56,8 +58,8 @@ export default function AdminLayout() {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                        ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
-                                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                                    ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
+                                    : "text-gray-400 hover:text-white hover:bg-white/5"
                                     }`}
                             >
                                 <Icon size={20} className="flex-shrink-0" />

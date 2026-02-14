@@ -16,7 +16,14 @@ export default defineSchema({
         }))),
         sizes: v.optional(v.array(v.string())),
         description: v.optional(v.string()),
+        collection: v.optional(v.string()), // Collection name
     }),
+    collections: defineTable({
+        name: v.string(),
+        slug: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()), // Storage ID or URL
+    }).index("by_slug", ["slug"]),
     categories: defineTable({
         name: v.string(),
     }),

@@ -6,27 +6,62 @@ import Newsletter from "../components/Newsletter.jsx";
 import Hero from "../components/Hero.jsx";
 import Skeleton from "../components/ui/Skeleton.jsx";
 import { PRODUCTS as STATIC_PRODUCTS, CATEGORIES } from "../data/products.js";
-import { Filter, ChevronDown, X } from "lucide-react";
+import { Filter, ChevronDown, X, LayoutGrid } from "lucide-react";
 
 export default function Shop() {
   const convexProducts = useQuery(api.products.list);
+  const collections = useQuery(api.collections.list);
   const [category, setCategory] = useState("All Categories");
   const [sort, setSort] = useState("Featured");
 
   // Use Convex products if available and not empty, otherwise fallback to static data
   const PRODUCTS = (convexProducts && convexProducts.length > 0) ? convexProducts : STATIC_PRODUCTS;
-  const isLoading = convexProducts === undefined;
+  const isLoading = convexProducts === undefined || collections === undefined;
 
-  const items = useMemo(() => {
+  const itemsByCollection = useMemo(() => {
+    if (isLoading) return {};
+
     const filtered = PRODUCTS.filter((p) =>
       category === "All Categories" ? true : p.category === category
     );
 
-    if (sort === "Price: Low to High") return [...filtered].sort((a, b) => a.price - b.price);
-    if (sort === "Price: High to Low") return [...filtered].sort((a, b) => b.price - a.price);
-    if (sort === "Newest Arrivals") return [...filtered].sort((a, b) => b.id - a.id);
-    return filtered;
-  }, [PRODUCTS, category, sort]);
+    // Apply sorting
+    let sorted = [...filtered];
+    if (sort === "Price: Low to High") sorted.sort((a, b) => a.price - b.price);
+    if (sort === "Price: High to Low") sorted.sort((a, b) => b.price - a.price);
+    if (sort === "Newest Arrivals") sorted.sort((a, b) => b.id - a.id);
+
+    // Group by collection
+    const groups = {};
+
+    // Add collections to groups to maintain order even if empty
+    collections.forEach(col => {
+      groups[col.name] = [];
+    });
+
+    // Add "Other Items" group for products without collection
+    groups["Other Items"] = [];
+
+    sorted.forEach(p => {
+      const colName = p.collection || "Other Items";
+      if (!groups[colName]) {
+        groups[colName] = [];
+      }
+      groups[colName].push(p);
+    });
+
+    // Remove empty groups except when filtering by category (we might want to show empty sections then too, or not)
+    // Actually, let's remove empty groups for a cleaner look
+    Object.keys(groups).forEach(key => {
+      if (groups[key].length === 0) delete groups[key];
+    });
+
+    return groups;
+  }, [PRODUCTS, collections, category, sort, isLoading]);
+
+  const totalItems = useMemo(() => {
+    return Object.values(itemsByCollection).reduce((acc, curr) => acc + curr.length, 0);
+  }, [itemsByCollection]);
 
   return (
     <main className="bg-gray-50/50 min-h-screen">
@@ -43,10 +78,10 @@ export default function Shop() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
           <div>
             <h2 className="text-[var(--text-3xl)] font-black text-brand-navy tracking-tight mb-2">
-              Showing {category === "All Categories" ? "All Products" : category}
+              {category === "All Categories" ? "Store Catalog" : category}
             </h2>
             <p className="text-gray-500 text-sm font-medium">
-              {isLoading ? "Fetching latest styles..." : `${items.length} items found`}
+              {isLoading ? "Fetching latest styles..." : `${totalItems} items found across ${Object.keys(itemsByCollection).length} collections`}
             </p>
           </div>
 
@@ -100,26 +135,48 @@ export default function Shop() {
           </div>
         )}
 
-        {/* Grid System: 4 Desktop -> 2 Tablet -> 1 Mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        {/* Dynamic Collection Sections */}
+        <div className="space-y-24">
           {isLoading ? (
             // Skeleton Loading State
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="aspect-[3/4] w-full rounded-2xl" />
-                <div className="space-y-2 px-1">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <div className="flex justify-between pt-2">
-                    <Skeleton className="h-6 w-1/3" />
-                    <Skeleton className="h-6 w-6 rounded-lg" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="aspect-[3/4] w-full rounded-2xl" />
+                  <div className="space-y-2 px-1">
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex justify-between pt-2">
+                      <Skeleton className="h-6 w-1/3" />
+                      <Skeleton className="h-6 w-6 rounded-lg" />
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : totalItems > 0 ? (
+            Object.entries(itemsByCollection).map(([colName, products]) => (
+              <div key={colName} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-brand-navy/5 rounded-xl flex items-center justify-center">
+                      <LayoutGrid className="text-brand-navy" size={20} />
+                    </div>
+                    <h3 className="text-2xl font-black text-brand-navy tracking-tight uppercase">
+                      {colName}
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    {products.length} Products
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                  {products.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
               </div>
-            ))
-          ) : items.length > 0 ? (
-            items.map((p, idx) => (
-              <ProductCard key={p.id} product={p} />
             ))
           ) : (
             <div className="col-span-full py-32 text-center">

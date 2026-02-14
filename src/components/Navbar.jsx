@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingBag, User, Search, ChevronDown } from "lucide-react";
 import { useCart } from "../context/CartContext.jsx";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import logo from "../assets/logo.png";
 import { NAV_LINKS } from "../data/navigation.js";
 
 export default function Navbar() {
   const { count } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const collections = useQuery(api.collections.list);
   const location = useLocation();
 
   // Close mobile menu on route change
@@ -28,6 +31,20 @@ export default function Navbar() {
     `px-4 py-2 text-sm font-bold tracking-tight transition-all duration-300 ${isActive ? "text-brand-orange" : "text-gray-900 hover:text-brand-orange"
     }`;
 
+  // Process nav links to include dynamic collections
+  const dynNavLinks = NAV_LINKS.map(link => {
+    if (link.name === "Collections" && collections) {
+      return {
+        ...link,
+        dropdown: collections.map(c => ({
+          name: c.name,
+          path: `/collections/${c.slug}`
+        }))
+      };
+    }
+    return link;
+  });
+
   return (
     <nav className="glass-morphism h-20 sticky top-0 z-[100] flex items-center">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -42,7 +59,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center space-x-2">
-            {NAV_LINKS.map((link) =>
+            {dynNavLinks.map((link) =>
               link.dropdown ? (
                 <div key={link.name} className="relative group dropdown">
                   <button className="flex items-center gap-1 text-gray-900 hover:text-brand-orange transition-colors duration-300 px-4 py-2 text-sm font-bold tracking-tight uppercase tracking-widest text-[10px]">
@@ -50,15 +67,19 @@ export default function Navbar() {
                   </button>
                   <div className="dropdown-menu absolute hidden pt-2 w-56 -left-4 z-50">
                     <div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden py-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                      {link.dropdown.map((sub) => (
-                        <Link
-                          key={sub.name}
-                          to={sub.path}
-                          className="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-orange transition-colors"
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
+                      {link.dropdown.length > 0 ? (
+                        link.dropdown.map((sub) => (
+                          <Link
+                            key={sub.name}
+                            to={sub.path}
+                            className="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-orange transition-colors"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))
+                      ) : (
+                        <div className="px-6 py-3 text-sm text-gray-400">No collections</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -133,7 +154,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex-1 overflow-y-auto py-8 px-6 space-y-6">
-          {NAV_LINKS.map((link) => (
+          {dynNavLinks.map((link) => (
             <div key={link.name} className="space-y-4">
               {link.dropdown ? (
                 <>
@@ -141,15 +162,19 @@ export default function Navbar() {
                     {link.name}
                   </div>
                   <div className="space-y-4 pl-4 border-l-2 border-gray-50">
-                    {link.dropdown.map((sub) => (
-                      <NavLink
-                        key={sub.name}
-                        to={sub.path}
-                        className="block text-xl font-bold text-gray-900 hover:text-brand-orange transition-colors"
-                      >
-                        {sub.name}
-                      </NavLink>
-                    ))}
+                    {link.dropdown.length > 0 ? (
+                      link.dropdown.map((sub) => (
+                        <NavLink
+                          key={sub.name}
+                          to={sub.path}
+                          className="block text-xl font-bold text-gray-900 hover:text-brand-orange transition-colors"
+                        >
+                          {sub.name}
+                        </NavLink>
+                      ))
+                    ) : (
+                      <div className="text-sm text-gray-400">No collections available</div>
+                    )}
                   </div>
                 </>
               ) : (

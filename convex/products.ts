@@ -4,14 +4,43 @@ import { v } from "convex/values";
 export const list = query({
     args: {},
     handler: async (ctx) => {
-        return await ctx.db.query("products").collect();
+        const products = await ctx.db.query("products").collect();
+
+        // Convert storage IDs to URLs for images
+        return await Promise.all(products.map(async (product) => {
+            let imageUrl = product.image;
+
+            // Check if the image is a storage ID (starts with "kg" which is Convex's storage ID prefix)
+            if (imageUrl && imageUrl.startsWith("kg")) {
+                imageUrl = await ctx.storage.getUrl(imageUrl) || product.image;
+            }
+
+            return {
+                ...product,
+                image: imageUrl,
+            };
+        }));
     },
 });
+
 
 export const getById = query({
     args: { id: v.id("products") },
     handler: async (ctx, args) => {
-        return await ctx.db.get(args.id);
+        const product = await ctx.db.get(args.id);
+        if (!product) return null;
+
+        let imageUrl = product.image;
+
+        // Check if the image is a storage ID
+        if (imageUrl && imageUrl.startsWith("kg")) {
+            imageUrl = await ctx.storage.getUrl(imageUrl) || product.image;
+        }
+
+        return {
+            ...product,
+            image: imageUrl,
+        };
     },
 });
 
@@ -30,6 +59,7 @@ export const addProduct = mutation({
         }))),
         sizes: v.optional(v.array(v.string())),
         description: v.optional(v.string()),
+        collection: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const productId = await ctx.db.insert("products", args);
@@ -52,6 +82,7 @@ export const updateProduct = mutation({
         }))),
         sizes: v.optional(v.array(v.string())),
         description: v.optional(v.string()),
+        collection: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const { id, ...fields } = args;
@@ -70,3 +101,9 @@ export const generateUploadUrl = mutation(async (ctx) => {
     return await ctx.storage.generateUploadUrl();
 });
 
+export const getImageUrl = query({
+    args: { storageId: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.storage.getUrl(args.storageId);
+    },
+});

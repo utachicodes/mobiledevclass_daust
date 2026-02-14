@@ -1,10 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import Hero from "../components/Hero.jsx";
 import Newsletter from "../components/Newsletter.jsx";
-import { COLLECTIONS } from "../data/collections.js";
+import Skeleton from "../components/ui/Skeleton.jsx";
 
 export default function Home() {
+  const collections = useQuery(api.collections.list);
+
   return (
     <main className="overflow-x-hidden">
       <Hero
@@ -33,31 +37,44 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {COLLECTIONS.map((c, idx) => (
-            <Link
-              to={`/collections/${c.slug}`}
-              key={c.slug}
-              className="group relative rounded-2xl overflow-hidden premium-shadow bg-white"
-              data-aos="fade-up"
-              data-aos-delay={idx * 100}
-            >
-              <div className="aspect-[4/5] overflow-hidden">
-                <img
-                  src={c.image}
-                  alt={c.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                />
+          {collections === undefined ? (
+            // Skeleton loading state
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden aspect-[4/5] bg-gray-50">
+                <Skeleton className="w-full h-full" />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
-                <h3 className="text-white text-2xl font-black tracking-tight mb-1 group-hover:text-brand-orange transition-colors">
-                  {c.title}
-                </h3>
-                <p className="text-white/70 text-sm font-medium uppercase tracking-widest">
-                  Explore styles
-                </p>
-              </div>
-            </Link>
-          ))}
+            ))
+          ) : collections.length > 0 ? (
+            collections.slice(0, 3).map((c, idx) => (
+              <Link
+                to={`/collections/${c.slug}`}
+                key={c.slug}
+                className="group relative rounded-2xl overflow-hidden premium-shadow bg-white"
+                data-aos="fade-up"
+                data-aos-delay={idx * 100}
+              >
+                <div className="aspect-[4/5] overflow-hidden">
+                  <img
+                    src={c.image || "http://static.photos/fashion/640x360/placeholder"}
+                    alt={c.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
+                  <h3 className="text-white text-2xl font-black tracking-tight mb-1 group-hover:text-brand-orange transition-colors">
+                    {c.name}
+                  </h3>
+                  <p className="text-white/70 text-sm font-medium uppercase tracking-widest">
+                    Explore styles
+                  </p>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center text-gray-400">
+              Check back soon for our new collections.
+            </div>
+          )}
         </div>
       </section>
 

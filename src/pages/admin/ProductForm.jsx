@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
     X,
@@ -24,6 +24,7 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
         image: "",
         colors: [],
         sizes: [],
+        collection: "",
     });
 
     const [imageFile, setImageFile] = useState(null);
@@ -34,6 +35,7 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
     const generateUploadUrl = useMutation(api.products.generateUploadUrl);
     const addProduct = useMutation(api.products.addProduct);
     const updateProduct = useMutation(api.products.updateProduct);
+    const collections = useQuery(api.collections.list);
 
     const categories = ["Clothing", "Accessories", "Footwear", "Bundles", "Limited Edition"];
 
@@ -49,10 +51,12 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
                 image: product.image || "",
                 colors: product.colors || [],
                 sizes: product.sizes || [],
+                collection: product.collection || "",
             });
             setImagePreview(product.image || "");
         }
     }, [product]);
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -93,10 +97,11 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
         try {
             let finalImageUrl = formData.image;
             if (imageFile) {
-                // This is a simplified version of storage handling
+                // Upload the file and get the storage ID
                 const storageId = await handleUpload();
-                // Constructing a temporary URL for the sake of the UI demo if we don't have a file service
-                // Ideally we'd have a Convex query to get the URL
+
+                // Convert storage ID to a public URL using Convex storage
+                // We'll use the storage ID directly - Convex will handle URL conversion on read
                 finalImageUrl = storageId;
             }
 
@@ -116,7 +121,7 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
             onSave();
         } catch (err) {
             console.error("Failed to save product", err);
-            setError("An error occurred while saving the product.");
+            setError("An error occurred while saving the product. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -206,8 +211,19 @@ export default function AdminProductForm({ product, onSave, onCancel }) {
                                     value={formData.badge}
                                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                                     className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-brand-navy font-bold focus:ring-2 focus:ring-brand-orange/20 transition-all"
-                                    placeholder="New Arrival"
+                                    placeholder="New Arrival, Popular, etc."
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Collection (Optional)</label>
+                                <select
+                                    value={formData.collection}
+                                    onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
+                                    className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-brand-navy font-bold focus:ring-2 focus:ring-brand-orange/20 transition-all appearance-none"
+                                >
+                                    <option value="">None</option>
+                                    {collections?.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
+                                </select>
                             </div>
                         </div>
                     </div>

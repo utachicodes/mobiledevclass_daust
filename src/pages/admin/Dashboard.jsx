@@ -10,6 +10,7 @@ import {
     DollarSign,
     Users
 } from "lucide-react";
+import { formatPrice } from "../../utils/format.js";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 export default function AdminDashboard() {
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
         const completedOrders = orders.filter(o => o.status === "Delivered").length;
 
         return [
-            { label: "Total Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "bg-green-50 text-green-600" },
+            { label: "Total Revenue", value: formatPrice(totalRevenue), icon: DollarSign, color: "bg-green-50 text-green-600" },
             { label: "Active Orders", value: activeOrders.toString(), icon: ShoppingBag, color: "bg-brand-orange/10 text-brand-orange" },
             { label: "Catalog Size", value: totalProducts.toString(), icon: Package, color: "bg-blue-50 text-blue-600" },
             { label: "Fulfillment Rate", value: orders.length > 0 ? `${Math.round((completedOrders / orders.length) * 100)}%` : "0%", icon: CheckCircle2, color: "bg-purple-50 text-purple-600" },
@@ -96,11 +97,11 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="text-right flex items-center gap-6">
                                     <div>
-                                        <p className="font-black text-brand-navy text-sm">${order.total.toFixed(2)}</p>
+                                        <p className="font-black text-brand-navy text-sm">{formatPrice(order.total)}</p>
                                         <p className="text-[9px] font-black uppercase text-gray-400">{new Date(order.createdAt).toLocaleDateString()}</p>
                                     </div>
                                     <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${order.status === "Processing" ? "bg-brand-orange/10 text-brand-orange" :
-                                            order.status === "Shipped" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
+                                        order.status === "Shipped" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
                                         }`}>
                                         {order.status}
                                     </span>

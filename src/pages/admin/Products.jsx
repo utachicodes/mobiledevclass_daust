@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { formatPrice } from "../../utils/format.js";
 
 import AdminProductForm from "./ProductForm";
 
@@ -147,7 +149,7 @@ export default function AdminProducts() {
                                         </span>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <p className="font-black text-brand-navy text-sm">${p.price.toFixed(2)}</p>
+                                        <p className="font-black text-brand-navy text-sm">{formatPrice(p.price)}</p>
                                     </td>
                                     <td className="px-8 py-6 lg:table-cell hidden">
                                         <div className="flex items-center gap-1">

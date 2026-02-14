@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Heart, Star, ShoppingCart, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import { formatPrice } from "../utils/format.js";
 import Button from "./ui/Button";
 
 export default function ProductCard({ product }) {
@@ -90,7 +91,7 @@ export default function ProductCard({ product }) {
 
         <div className="flex items-center justify-between mt-4">
           <p className="text-lg font-extrabold text-brand-navy tracking-tight">
-            ${product.price.toFixed(2)}
+            {formatPrice(product.price)}
           </p>
 
           {/* Mobile Add to Cart (Visible on mobile, hidden on desktop hover) */}

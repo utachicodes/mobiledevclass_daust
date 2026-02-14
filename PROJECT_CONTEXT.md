@@ -5,7 +5,7 @@ This document serves as the primary source of truth for the project's architectu
 ## 🚀 Project Overview
 **Name:** Life at DAUST  
 **Purpose:** Official campus merchandise store for the Dakar American University of Science and Technology (DAUST).  
-**Status:** Feature Complete (Phase 4: Admin Panel Initialized)
+**Status:** Feature Complete (Phase 6: Global Localized Pricing Complete)
 
 ## 🛠 Tech Stack
 - **Frontend:** React 19 + Vite (Fast, modern, ESM-based)
@@ -26,6 +26,8 @@ This document serves as the primary source of truth for the project's architectu
   - `admin/`: Admin-specific layout components (AdminLayout, Sidebar).
 - `src/pages/`: Application routes.
   - `admin/`: Secured administrative pages (Dashboard, Products, Orders, Login).
+- `src/utils/`: High-level utility functions.
+  - `format.js`: Centralized price formatting for CFA (XOF).
 - `src/context/`: Global state management.
   - `CartContext.jsx`: Client-side cart persistence via `localStorage`.
   - `AdminContext.jsx`: Session-based administrative authentication.
@@ -41,6 +43,7 @@ This document serves as the primary source of truth for the project's architectu
 - **Micro-interactivity:** All interactive elements use `transition-all` with hover states (scale, shadow, or color shifts).
 - **Safe Storefront:** Global `ErrorBoundary` and pervasive loading states (Skeleton UI) ensure a polished user experience even during errors or slow fetches.
 - **Admin Security:** Protected routes via `AdminLayout` wrapper. Authentication persists in `sessionStorage` with a 12-character token system (`daust_admin_2024`).
+- **Localized Commerce:** Standardized use of the `formatPrice` utility for all currency rendering. Currency is fixed to West African CFA (XOF) with whole-number precision.
 - **Data Integrity:** Checkout orders are saved synchronously to Convex. Legacy logic for Google Sheets sync is maintained as a redundant backup.
 - **Modular Testing:** Every new UI component must have a corresponding `.test.jsx` file. Integration tests cover the path from Shop to Checkout.
 
@@ -68,6 +71,19 @@ This document serves as the primary source of truth for the project's architectu
 - **Catalog Control:** Implemented full Product CRUD with Convex image upload integration.
 - **Order Fulfillment:** Built a management page for tracking student purchases and updating shipment statuses (Processing → Shipped → Delivered).
 - **Backend Overhaul:** Added `orders` table to Convex schema and moved primary order persistence from Google Sheets to the database.
+
+### Phase 5: Collections Integration & Visual Curations (Feb 14, 2026)
+- **Database Evolution:** Added `collections` table to Convex with unique slug indexing and image support.
+- **Administrative CRUD:** Built a dedicated Collections management interface with auto-slug generation and Convex storage image uploads.
+- **Product Mapping:** Enhanced Product CRUD to support one-to-one collection assignments.
+- **Dynamic Navigation:** Migrated Navbar and mobile menus to fetch collection links directly from the database.
+- **Curated Storefront:** Updated Home and Shop pages to dynamically group and display products by collection, replacing all static mock data.
+
+### Phase 6: Global Localized Pricing (Feb 14, 2026)
+- **Central Utility:** Implemented a standardized `formatPrice` utility to ensure consistent "X,XXX CFA" rendering project-wide.
+- **Store-wide Localization:** Migrated every touchpoint (Shop, Product Details, Cart, Checkout, Admin Dashboard) to the new CFA format.
+- **Realistic Data Scaling:** Updated the static product catalog with logical, localized prices (e.g., T-shirts at 7,500 CFA, Hoodies at 15,000 CFA).
+- **Backend Accuracy:** Synchronized admin revenue analytics to reflect the new currency scale.
 
 ---
 *Last Updated: February 14, 2026*

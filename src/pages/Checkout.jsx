@@ -3,12 +3,13 @@ import React, { useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { Shield, ChevronLeft, Lock, Info, AlertCircle } from "lucide-react";
+import { formatPrice } from "../utils/format.js";
 import Button from "../components/ui/Button";
 
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-const fmt = (n) => `$${n.toFixed(2)}`;
+const fmt = (n) => formatPrice(n);
 const SHEETS_URL = import.meta.env.VITE_SHEETS_WEBAPP_URL;
 const SECRET = import.meta.env.VITE_SHEETS_SECRET;
 

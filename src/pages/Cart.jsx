@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
+import { formatPrice } from "../utils/format.js";
 import Button from "../components/ui/Button";
 
 export default function Cart() {
@@ -85,7 +86,7 @@ export default function Cart() {
                   <div className="text-right">
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Total</p>
                     <p className="text-xl font-black text-brand-navy">
-                      ${(item.price * item.qty).toFixed(2)}
+                      {formatPrice(item.price * item.qty)}
                     </p>
                   </div>
                 </div>
@@ -112,7 +113,7 @@ export default function Cart() {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-brand-cream/60 font-medium">Subtotal</span>
-                <span className="font-bold">${subtotal.toFixed(2)}</span>
+                <span className="font-bold">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-brand-cream/60 font-medium">Est. Shipping</span>
@@ -129,7 +130,7 @@ export default function Cart() {
             <div className="flex justify-between items-end mb-10">
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-orange">Estimated Total</p>
-                <p className="text-4xl font-black tracking-tighter">${subtotal.toFixed(2)}</p>
+                <p className="text-4xl font-black tracking-tighter">{formatPrice(subtotal)}</p>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { PRODUCTS } from "../data/products";
 import { useCart } from "../context/CartContext.jsx";
+import { formatPrice } from "../utils/format.js";
 import Button from "../components/ui/Button";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 
@@ -133,7 +134,7 @@ export default function ProductDetails() {
                         </h1>
                         <div className="flex items-center gap-6">
                             <span className="text-3xl font-black text-brand-orange tracking-tight">
-                                ${product.price.toFixed(2)}
+                                {formatPrice(product.price)}
                             </span>
                             <div className="h-6 w-[1px] bg-gray-200" />
                             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-50 rounded-lg">
