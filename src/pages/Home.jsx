@@ -18,11 +18,11 @@ export default function Home() {
       {/* Featured collections */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16 gap-4">
-          <div className="max-w-xl">
+          <div className="">
             <h2 className="text-[var(--text-4xl)] font-black text-brand-navy leading-tight mb-4 tracking-tighter">
               Featured Collections
             </h2>
-            <p className="text-gray-500 text-lg">
+            <p className="text-gray-500 text-lg leading">
               Carefully curated pieces that define the modern student experience at DAUST.
             </p>
           </div>

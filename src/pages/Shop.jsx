@@ -6,7 +6,7 @@ import Newsletter from "../components/Newsletter.jsx";
 import Hero from "../components/Hero.jsx";
 import Skeleton from "../components/ui/Skeleton.jsx";
 import { PRODUCTS as STATIC_PRODUCTS, CATEGORIES } from "../data/products.js";
-import { Filter, ChevronDown, X } from "react-feather";
+import { Filter, ChevronDown, X } from "lucide-react";
 
 export default function Shop() {
   const convexProducts = useQuery(api.products.list);
@@ -58,8 +58,8 @@ export default function Shop() {
                   key={c}
                   onClick={() => setCategory(c)}
                   className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${category === c
-                      ? "bg-brand-navy text-white shadow-lg shadow-brand-navy/20"
-                      : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-100"
+                    ? "bg-brand-navy text-white shadow-lg shadow-brand-navy/20"
+                    : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-100"
                     }`}
                 >
                   {c}

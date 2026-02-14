@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram } from "react-feather";
+import { Facebook, Twitter, Instagram } from "lucide-react";
 import logo from "../assets/logo.png";
 
 export default function Footer() {

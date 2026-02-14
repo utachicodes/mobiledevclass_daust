@@ -2,11 +2,29 @@ import { useState } from "react";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle, loading, success
+  const [status, setStatus] = useState("idle"); // idle, loading, success, error
+  const [error, setError] = useState("");
+
+  const validateEmail = (email) => {
+    if (!email.trim()) {
+      return "Email is required";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    setError("");
+
+    const validationError = validateEmail(email);
+    if (validationError) {
+      setError(validationError);
+      setStatus("error");
+      return;
+    }
 
     setStatus("loading");
     // Simulate API call
@@ -66,6 +84,9 @@ export default function Newsletter() {
                   </button>
                 </div>
               </form>
+            )}
+            {error && status === "error" && (
+              <p className="mt-2 text-sm text-red-600">{error}</p>
             )}
             <p className="mt-3 text-sm text-gray-500">
               We respect your privacy. Unsubscribe at any time.

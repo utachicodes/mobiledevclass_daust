@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, ShoppingCart, Star, Heart, Info, Shield, Truck } from "react-feather";
+import { ChevronRight, ShoppingCart, Star, Heart, Info, Shield, Truck } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { PRODUCTS } from "../data/products";
 import { useCart } from "../context/CartContext.jsx";
 import Button from "../components/ui/Button";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -37,6 +38,11 @@ export default function ProductDetails() {
     const [selectedSize, setSelectedSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
+    // Scroll to top when navigating to product details
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]);
+
     // Initialize state when product is loaded
     useEffect(() => {
         if (product) {
@@ -45,6 +51,15 @@ export default function ProductDetails() {
             setSelectedSize(product.sizes?.[0] || null);
         }
     }, [product]);
+
+    // Show loading spinner while Convex query is loading
+    if (isConvexId && convexProduct === undefined) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <LoadingSpinner size="lg" />
+            </div>
+        );
+    }
 
     if (!product) {
         return (

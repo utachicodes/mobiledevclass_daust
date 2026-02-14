@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
-import { Shield, ChevronLeft, Lock, Info, AlertCircle } from "react-feather";
+import { Shield, ChevronLeft, Lock, Info, AlertCircle } from "lucide-react";
 import Button from "../components/ui/Button";
 
 const fmt = (n) => `$${n.toFixed(2)}`;

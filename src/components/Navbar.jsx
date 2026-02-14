@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingBag, User, Search, ChevronDown } from "react-feather";
+import { Menu, X, ShoppingBag, User, Search, ChevronDown } from "lucide-react";
 import { useCart } from "../context/CartContext.jsx";
 import logo from "../assets/logo.png";
 import { NAV_LINKS } from "../data/navigation.js";

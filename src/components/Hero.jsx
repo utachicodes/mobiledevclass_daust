@@ -42,7 +42,7 @@ export default function Hero({
           )}
 
           {subtitle && (
-            <p className="text-[var(--text-xl)] text-brand-cream/80 max-w-2xl font-medium leading-relaxed">
+            <p className="text-[var(--text-xl)] text-brand-cream/80 font-medium leading-relaxed">
               {subtitle}
             </p>
           )}

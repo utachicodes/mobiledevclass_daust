@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Heart, Star, ShoppingCart, Eye } from "react-feather";
+import { Heart, Star, ShoppingCart, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import Button from "./ui/Button";
