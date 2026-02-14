@@ -1,71 +1,102 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ChevronRight, ShoppingCart, Star, Heart, Share2, Check } from "react-feather";
+import { ChevronRight, ShoppingCart, Star, Heart, Info, Shield, Truck } from "react-feather";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { PRODUCTS } from "../data/products";
-import { useCart } from "../context/CartContext.js";
+import { useCart } from "../context/CartContext.jsx";
+import Button from "../components/ui/Button";
 
 export default function ProductDetails() {
     const { id } = useParams();
     const { addItem } = useCart();
 
-    // Try to fetch from Convex if ID seems like a Convex ID (string),
-    // otherwise fallback to static products (which use numeric IDs)
-    const convexProduct = useQuery(api.products.getById, {
-        id: typeof id === "string" && id.length > 5 ? id : undefined
-    });
+    // Determine if this looks like a Convex ID (longer strings)
+    const isConvexId = typeof id === "string" && id.length > 10;
 
-    const product = useMemo(() =>
-        convexProduct || PRODUCTS.find(p => p.id === parseInt(id)),
-        [id, convexProduct]
+    // Only query Convex if ID looks like a Convex ID
+    const convexProduct = useQuery(
+        api.products.getById,
+        isConvexId ? { id: id } : "skip"
     );
 
-    const [mainImage, setMainImage] = useState(product?.image);
-    const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || null);
-    const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || null);
+    // Try to find the product in either Convex or Static DATA
+    const product = useMemo(() => {
+        if (convexProduct) return convexProduct;
+
+        // Handle numeric IDs for static products
+        const numericId = parseInt(id);
+        if (!isNaN(numericId)) {
+            return PRODUCTS.find(p => p.id === numericId);
+        }
+        return null;
+    }, [id, convexProduct]);
+
+    const [mainImage, setMainImage] = useState(null);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
+
+    // Initialize state when product is loaded
+    useEffect(() => {
+        if (product) {
+            setMainImage(product.image);
+            setSelectedColor(product.colors?.[0] || null);
+            setSelectedSize(product.sizes?.[0] || null);
+        }
+    }, [product]);
 
     if (!product) {
         return (
-            <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-                <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
-                <Link to="/shop" className="mt-4 text-brand-orange hover:underline inline-block">
-                    Return to Shop
+            <div className="max-w-7xl mx-auto px-4 py-32 text-center animate-in fade-in duration-700">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-50 mb-8">
+                    <Info size={40} className="text-gray-300" />
+                </div>
+                <h2 className="text-[var(--text-3xl)] font-black text-brand-navy tracking-tight mb-4">Product not found</h2>
+                <p className="text-gray-500 mb-10 max-w-md mx-auto">This item may have been moved or is currently unavailable in your region.</p>
+                <Link to="/shop">
+                    <Button variant="secondary" size="md">Return to Shop</Button>
                 </Link>
             </div>
         );
     }
 
-    const gallery = product.images || [product.image];
+    // Better gallery handling
+    const gallery = (product.images && product.images.length > 0)
+        ? product.images
+        : [product.image];
 
     return (
-        <div className="bg-white">
+        <div className="bg-white min-h-screen overflow-x-hidden">
             {/* Breadcrumbs */}
-            <nav className="max-w-7xl mx-auto px-4 py-4 flex items-center text-sm text-gray-500">
-                <Link to="/" className="hover:text-brand-navy">Home</Link>
-                <ChevronRight size={14} className="mx-2" />
-                <Link to="/shop" className="hover:text-brand-navy">Shop</Link>
-                <ChevronRight size={14} className="mx-2" />
-                <span className="text-gray-900 font-medium truncate">{product.name}</span>
-            </nav>
+            <div className="bg-gray-50/50 border-b border-gray-100">
+                <nav className="max-w-7xl mx-auto px-4 py-4 flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    <Link to="/" className="hover:text-brand-orange transition-colors">Home</Link>
+                    <ChevronRight size={10} className="mx-3 text-gray-300" />
+                    <Link to="/shop" className="hover:text-brand-orange transition-colors">Shop</Link>
+                    <ChevronRight size={10} className="mx-3 text-gray-300" />
+                    <span className="text-gray-900 truncate">{product.name}</span>
+                </nav>
+            </div>
 
-            <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                {/* Left: Image Gallery */}
-                <div className="space-y-4">
-                    <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gray-100 shadow-sm border border-gray-100">
+            <main className="max-w-7xl mx-auto px-4 py-12 sm:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                {/* Left: Image Gallery (Span 7) */}
+                <div className="lg:col-span-7 space-y-6">
+                    <div className="aspect-[4/5] rounded-[2rem] overflow-hidden bg-gray-50/50 premium-shadow border border-gray-100 animate-in fade-in zoom-in-95 duration-700">
                         <img
-                            src={mainImage}
+                            src={mainImage || product.image}
                             alt={product.name}
-                            className="w-full h-full object-cover transition-opacity duration-300"
+                            className="w-full h-full object-cover transition-all duration-700 ease-in-out hover:scale-110"
                         />
                     </div>
-                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex gap-4 overflow-x-auto py-4 scrollbar-hide px-2">
                         {gallery.map((img, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setMainImage(img)}
-                                className={`flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border-2 transition ${mainImage === img ? "border-brand-orange" : "border-transparent opacity-70"
+                                className={`flex-shrink-0 w-24 h-28 rounded-2xl overflow-hidden border-2 transition-all duration-300 interactive-scale ${mainImage === img
+                                        ? "border-brand-orange shadow-lg scale-105"
+                                        : "border-transparent opacity-60 grayscale-[50%]"
                                     }`}
                             >
                                 <img src={img} alt="" className="w-full h-full object-cover" />
@@ -74,51 +105,62 @@ export default function ProductDetails() {
                     </div>
                 </div>
 
-                {/* Right: Info & Actions */}
-                <div className="flex flex-col">
-                    <div className="mb-6">
+                {/* Right: Info & Actions (Span 5) */}
+                <div className="lg:col-span-5 flex flex-col pt-4">
+                    <div className="mb-10 animate-in slide-in-from-right-10 duration-700 delay-100">
                         {product.badge && (
-                            <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-brand-orange text-xs font-bold uppercase tracking-wider mb-2">
+                            <span className="inline-block px-4 py-1.5 rounded-full bg-orange-100 text-brand-orange text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-sm">
                                 {product.badge}
                             </span>
                         )}
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{product.name}</h1>
-                        <div className="mt-4 flex items-center gap-4">
-                            <span className="text-2xl font-bold text-brand-navy">${product.price.toFixed(2)}</span>
-                            <div className="flex items-center text-yellow-400">
-                                <Star size={18} fill="currentColor" />
-                                <span className="ml-1 text-gray-600 font-medium">{product.rating}</span>
-                                <span className="ml-1 text-gray-400 text-sm">(124 reviews)</span>
+                        <h1 className="text-[var(--text-4xl)] font-black text-brand-navy leading-tight tracking-tighter mb-6">
+                            {product.name}
+                        </h1>
+                        <div className="flex items-center gap-6">
+                            <span className="text-3xl font-black text-brand-orange tracking-tight">
+                                ${product.price.toFixed(2)}
+                            </span>
+                            <div className="h-6 w-[1px] bg-gray-200" />
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-50 rounded-lg">
+                                <Star size={16} fill="#fbbf24" className="text-yellow-400" />
+                                <span className="text-sm font-black text-gray-800">{product.rating}</span>
+                                <span className="text-gray-400 text-xs font-bold pl-1 border-l border-yellow-200 ml-1">124 Reviews</span>
                             </div>
                         </div>
                     </div>
 
-                    <p className="text-gray-600 leading-relaxed mb-8">
+                    <p className="text-gray-500 text-lg leading-relaxed mb-10 font-medium max-w-xl">
                         {product.description || "Inspired by campus life, this DAUST essential combines comfort with university spirit. Perfect for everyday wear or as a special gift."}
                     </p>
 
                     {/* Variants Section */}
-                    <div className="space-y-8 mb-10">
+                    <div className="space-y-10 mb-12 animate-in slide-in-from-right-10 duration-700 delay-200">
                         {/* Colors */}
                         {product.colors && product.colors.length > 0 && (
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4">
-                                    Color: <span className="text-gray-500 font-normal">{selectedColor?.name}</span>
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-5">
+                                    Select Color — <span className="text-brand-navy">{selectedColor?.name}</span>
                                 </h3>
-                                <div className="flex gap-3">
+                                <div className="flex gap-4">
                                     {product.colors.map((color) => (
                                         <button
                                             key={color.name}
                                             onClick={() => setSelectedColor(color)}
-                                            className={`w-10 h-10 rounded-full border-2 p-0.5 transition flex items-center justify-center ${selectedColor?.name === color.name ? "border-brand-orange" : "border-gray-200"
+                                            className={`relative w-12 h-12 rounded-full ring-2 ring-offset-4 transition-all duration-300 interactive-scale ${selectedColor?.name === color.name
+                                                    ? "ring-brand-orange"
+                                                    : "ring-transparent"
                                                 }`}
                                         >
                                             <span
-                                                className="w-full h-full rounded-full shadow-inner"
+                                                className="block w-full h-full rounded-full shadow-inner border border-black/5"
                                                 style={{ backgroundColor: color.hex }}
                                             />
                                             {selectedColor?.name === color.name && (
-                                                <Check size={14} className="absolute text-white drop-shadow-md" />
+                                                <span className="absolute inset-0 flex items-center justify-center">
+                                                    <svg className="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </span>
                                             )}
                                         </button>
                                     ))}
@@ -129,18 +171,18 @@ export default function ProductDetails() {
                         {/* Sizes */}
                         {product.sizes && product.sizes.length > 0 && (
                             <div>
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Select Size</h3>
-                                    <button className="text-xs text-brand-orange font-bold uppercase hover:underline">Size Chart</button>
+                                <div className="flex justify-between items-center mb-5">
+                                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Select Your Size</h3>
+                                    <button className="text-[10px] text-brand-orange font-black uppercase tracking-widest hover:underline">Size Guide</button>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-3">
                                     {product.sizes.map((size) => (
                                         <button
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
-                                            className={`min-w-[56px] h-11 px-4 rounded-lg font-bold border-2 transition ${selectedSize === size
-                                                ? "border-brand-navy bg-brand-navy text-white"
-                                                : "border-gray-200 text-gray-700 hover:border-brand-navy"
+                                            className={`min-w-[70px] h-14 rounded-xl font-black text-sm transition-all duration-300 border-2 interactive-scale ${selectedSize === size
+                                                    ? "border-brand-navy bg-brand-navy text-white shadow-xl shadow-brand-navy/20"
+                                                    : "border-gray-100 text-gray-500 hover:border-brand-navy hover:text-brand-navy"
                                                 }`}
                                         >
                                             {size}
@@ -152,70 +194,125 @@ export default function ProductDetails() {
                     </div>
 
                     {/* Add to Cart Actions */}
-                    <div className="mt-auto pt-8 border-t border-gray-100 flex flex-col gap-4">
-                        <div className="flex gap-4">
-                            <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden h-14">
+                    <div className="mt-auto pt-10 border-t border-gray-100 animate-in slide-in-from-bottom-5 duration-700 delay-300">
+                        <div className="flex flex-wrap gap-4 items-center">
+                            {/* Quantity Selector */}
+                            <div className="flex items-center bg-gray-50 rounded-2xl p-1 h-16 w-full sm:w-auto">
                                 <button
                                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                    className="px-4 h-full hover:bg-gray-50 text-xl"
+                                    className="w-12 h-full rounded-xl hover:bg-white hover:shadow-sm text-xl font-bold transition-all"
                                 >
                                     −
                                 </button>
-                                <span className="w-12 text-center font-bold text-gray-900">{quantity}</span>
+                                <span className="w-14 text-center font-black text-brand-navy">{quantity}</span>
                                 <button
                                     onClick={() => setQuantity(q => Math.min(99, q + 1))}
-                                    className="px-4 h-full hover:bg-gray-50 text-xl"
+                                    className="w-12 h-full rounded-xl hover:bg-white hover:shadow-sm text-xl font-bold transition-all"
                                 >
                                     +
                                 </button>
                             </div>
+
+                            {/* Add to Cart Button - Using inline styles for guaranteed visibility */}
                             <button
+                                style={{
+                                    backgroundColor: '#0a2342',
+                                    color: 'white',
+                                    flex: 1,
+                                    height: '64px',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '16px',
+                                    fontSize: '16px',
+                                    fontWeight: '700',
+                                    boxShadow: '0 10px 40px rgba(10, 35, 66, 0.1)',
+                                    transition: 'all 300ms ease',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    minWidth: '200px'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#f37021';
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 20px 50px rgba(243, 112, 33, 0.2)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#0a2342';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(10, 35, 66, 0.1)';
+                                }}
                                 onClick={() => {
+                                    // Validate selections
+                                    if (product.colors?.length > 0 && !selectedColor) {
+                                        alert('Please select a color');
+                                        return;
+                                    }
+                                    if (product.sizes?.length > 0 && !selectedSize) {
+                                        alert('Please select a size');
+                                        return;
+                                    }
+
                                     addItem({
                                         ...product,
                                         selectedColor: selectedColor?.name,
                                         selectedSize: selectedSize
                                     }, quantity);
-                                    // Optional: add a tiny visual feedback here
                                 }}
-                                className="flex-1 bg-brand-navy text-white font-bold rounded-lg h-14 flex items-center justify-center gap-3 hover:bg-brand-orange transition active:scale-[0.98]"
                             >
-                                <ShoppingCart size={20} />
-                                Add to Cart
+                                <ShoppingCart size={22} />
+                                <span>Add to Shopping Bag</span>
                             </button>
-                            <button className="w-14 h-14 rounded-lg border-2 border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition">
-                                <Heart size={20} />
+
+                            {/* Wishlist Button */}
+                            <button
+                                className="w-16 h-16 rounded-2xl border-2 border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all duration-300 interactive-scale"
+                                aria-label="Add to Wishlist"
+                            >
+                                <Heart size={24} />
                             </button>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm text-gray-500 pt-4">
-                            <div className="flex items-center gap-1">
-                                <Check size={16} className="text-green-500" />
-                                <span>In stock & ready to ship</span>
+                        {/* Trust Badges */}
+                        <div className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-12 bg-gray-50/50 p-6 rounded-3xl">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm">
+                                    <Truck size={20} className="text-brand-orange" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-gray-900 leading-none">Fast Delivery</p>
+                                    <p className="text-[10px] text-gray-500 mt-1">2-4 days campus ship</p>
+                                </div>
                             </div>
-                            <button className="flex items-center gap-1 hover:text-brand-navy">
-                                <Share2 size={16} />
-                                <span>Share</span>
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm">
+                                    <Shield size={20} className="text-green-500" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-gray-900 leading-none">Secure Payment</p>
+                                    <p className="text-[10px] text-gray-500 mt-1">100% encrypted</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </main>
 
-            {/* Product Details Tabs (Optional enhancement) */}
-            <section className="max-w-7xl mx-auto px-4 py-16 mt-8 border-t border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Product Details Tabs */}
+            <section className="max-w-7xl mx-auto px-4 py-24 sm:py-32 border-t border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Quality Materials</h4>
-                        <p className="text-gray-500 text-sm italic">"Crafted with the finest materials to ensure comfort during long laboratory sessions and campus activities."</p>
+                        <h4 className="font-black text-brand-navy mb-5 uppercase tracking-[0.2em] text-[10px]">Premium Materials</h4>
+                        <p className="text-gray-500 text-sm italic leading-relaxed">"Every fiber is selected to endure the rigorous yet rewarding lifestyle of the DAUST student. We prioritize organic cotton and high-density blends for maximum longevity."</p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Sustainability</h4>
-                        <p className="text-gray-500 text-sm">Part of our "Green DAUST" initiative—responsibly sourced and manufactured to minimize environmental footprint.</p>
+                        <h4 className="font-black text-brand-navy mb-5 uppercase tracking-[0.2em] text-[10px]">Our Promise</h4>
+                        <p className="text-gray-500 text-sm leading-relaxed">Part of our "Excellence in Gear" initiative—responsibly manufactured to ensure that your university pride never comes at a cost to the community or planet.</p>
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-widest text-xs">Fast Shipping</h4>
-                        <p className="text-gray-500 text-sm">Free shipping across the campus. External orders are processed and shipped within 48 hours.</p>
+                        <h4 className="font-black text-brand-navy mb-5 uppercase tracking-[0.2em] text-[10px]">Exchanges</h4>
+                        <p className="text-gray-500 text-sm leading-relaxed">Not the perfect fit? Campus exchanges are always free. External returns accepted within 14 days of receipt in original condition.</p>
                     </div>
                 </div>
             </section>

@@ -1,63 +1,109 @@
-import React from "react";
-import { Heart, Star, ShoppingCart } from "react-feather";
+import React, { useState } from "react";
+import { Heart, Star, ShoppingCart, Eye } from "react-feather";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext.js";
+import { useCart } from "../context/CartContext.jsx";
+import Button from "./ui/Button";
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
+  const [isHovered, setIsHovered] = useState(false);
+
+  // If product has multiple images, show the second on hover
+  const displayImage = isHovered && product.images?.length > 1
+    ? product.images[1]
+    : product.image;
 
   return (
-    <div className="product-card bg-white rounded-lg overflow-hidden shadow-md">
-      <div className="relative group cursor-pointer">
-        <Link to={`/product/${product.id}`}>
+    <div
+      className="product-card group relative bg-white rounded-xl overflow-hidden premium-shadow transition-all duration-500"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+        <Link to={`/product/${product.id}`} className="block w-full h-full">
           <img
-            className="product-image w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
-            src={product.image}
+            className={`w-full h-full object-cover transition-transform duration-700 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
+            src={displayImage}
             alt={product.name}
+            loading="lazy"
           />
         </Link>
-        <div className="absolute top-2 right-2">
-          <button className="p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-md hover:bg-white hover:text-red-500 transition" aria-label="Wish">
-            <Heart className="h-5 w-5" />
-          </button>
-        </div>
+
+        {/* Wishlist Button */}
+        <button
+          className="absolute top-4 right-4 p-2.5 rounded-full glass-morphism text-brand-navy hover:text-red-500 transition-colors duration-300 z-10 interactive-scale"
+          aria-label="Add to Wishlist"
+        >
+          <Heart className="h-5 w-5" />
+        </button>
+
+        {/* Badge */}
         {product.badge && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-            <span className="text-white font-bold text-xs uppercase tracking-widest">{product.badge}</span>
+          <div className="absolute top-4 left-4 z-10">
+            <span className="bg-brand-orange text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+              {product.badge}
+            </span>
           </div>
         )}
+
+        {/* Quick Add Overlay (Desktop) */}
+        <div className={`absolute inset-x-0 bottom-0 p-4 transition-all duration-300 translate-y-full group-hover:translate-y-0 hidden lg:block bg-gradient-to-t from-black/20 to-transparent z-20`}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full glass-morphism border-none text-brand-navy font-black transition-all duration-300 shadow-lg"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#0a2342';
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#0a2342';
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addItem(product, 1);
+            }}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Quick Add
+          </Button>
+        </div>
       </div>
 
-      <div className="p-4">
-        <Link to={`/product/${product.id}`} className="block group">
-          <h3 className="text-lg font-medium text-brand-navy group-hover:text-brand-orange transition truncate">{product.name}</h3>
-        </Link>
-        <div className="mt-1 flex justify-between items-center">
-          <p className="text-brand-navy font-bold">${product.price.toFixed(2)}</p>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-gray-600 ml-1">{product.rating}</span>
+      {/* Info Container */}
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-2">
+          <Link to={`/product/${product.id}`} className="block flex-1 mr-2">
+            <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-brand-orange transition-colors duration-300 tracking-tight">
+              {product.name}
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">{product.category}</p>
+          </Link>
+          <div className="flex items-center bg-gray-50 px-2 py-1 rounded-md">
+            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+            <span className="text-[10px] font-bold text-gray-700 ml-1">{product.rating}</span>
           </div>
         </div>
 
-        <button
-          onClick={() => addItem(product, 1)}
-          className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 font-semibold shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 active:scale-[0.99] transition"
-          style={{
-            backgroundColor: '#0a2342',
-            color: '#ffffff',
-            border: 'none'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#f97316';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#0a2342';
-          }}
-        >
-          <ShoppingCart className="h-5 w-5" />
-          Add to Cart
-        </button>
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-lg font-extrabold text-brand-navy tracking-tight">
+            ${product.price.toFixed(2)}
+          </p>
+
+          {/* Mobile Add to Cart (Visible on mobile, hidden on desktop hover) */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              addItem(product, 1);
+            }}
+            className="lg:hidden p-2 rounded-lg bg-gray-100 text-brand-navy active:bg-brand-navy active:text-white transition-all duration-200"
+          >
+            <ShoppingCart className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

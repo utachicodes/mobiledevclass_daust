@@ -1,6 +1,7 @@
 // src/components/Hero.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import Button from "./ui/Button";
 
 export default function Hero({
   title,
@@ -16,48 +17,50 @@ export default function Hero({
   };
 
   return (
-    <section className="relative bg-brand-navy">
+    <section className="relative min-h-[70vh] flex items-center bg-brand-navy overflow-hidden">
       {/* Background image */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 z-0">
         {image && (
           <img
             src={image}
             alt=""
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-60 scale-105"
             decoding="async"
           />
         )}
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/30" />
+        {/* Advanced Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-navy/90 via-brand-navy/40 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-        <div className={`flex flex-col gap-6 ${alignMap[align]}`}>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 w-full">
+        <div className={`flex flex-col gap-8 ${alignMap[align]}`}>
           {title && (
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-brand-navy hover:text-brand-orange transition-colors">
+            <h1 className="text-[var(--text-5xl)] font-black tracking-tighter text-white max-w-4xl leading-[1.1]">
               {title}
             </h1>
           )}
 
           {subtitle && (
-            <p className="text-lg sm:text-xl text-brand-navy hover:text-brand-orange transition-colors max-w-3xl">
+            <p className="text-[var(--text-xl)] text-brand-cream/80 max-w-2xl font-medium leading-relaxed">
               {subtitle}
             </p>
           )}
 
           {cta && (
             <div className={align === "center" ? "mx-auto" : ""}>
-              <Link
-                to={to}
-                className="inline-block bg-brand-orange hover:bg-orange-600 text-white font-medium rounded-md px-8 py-3 transition-colors"
-              >
-                {cta}
+              <Link to={to}>
+                <Button variant="primary" size="lg" className="rounded-full shadow-2xl hover:scale-105">
+                  {cta}
+                </Button>
               </Link>
             </div>
           )}
         </div>
       </div>
+
+      {/* Decorative pulse */}
+      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-orange/20 rounded-full blur-[120px] animate-pulse" />
     </section>
   );
 }
