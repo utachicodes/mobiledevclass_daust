@@ -16,6 +16,7 @@ export default function Dashboard() {
         { title: 'Lab 3: Props & Events', icon: 'cloudy', route: '/tabs/labs/lab3' },
         { title: 'Lab 4: Lifecycle', icon: 'flask', route: '/tabs/labs/lab4' },
         { title: 'Lab 5: Context & Auth', icon: 'lock-closed', route: '/tabs/labs/lab5' },
+        { title: 'Lab 6: Tic-Tac-Toe', icon: 'grid', route: '/tabs/labs/lab6' },
         { title: 'Test 1: Project Submission', icon: 'checkmark-circle', route: '/tabs/test1' },
     ];
 
